@@ -9,6 +9,23 @@ def search_path(
     need_append=lambda _, o: (False, o),
     index_invalid=lambda _, o: (False, o),
 ) -> Tuple[bool, Dict, str]:
+    """search_path is a method that will search a python object by the given path.
+    When it reach the target, it will return target's value.
+    Otherwise, it will call different method based on different situation.
+
+    Args:
+        obj (Dict): Python dictionary that is goting to be searched
+        path (str): Path to the target
+        key_not_found (str, Any): Triggered when the given key is not found
+        need_append (str, Any): Triggered when the given index is the next index of the list
+        index_invalid (str, Any): Triggered when the given index is an invalid index of the list
+
+    Raises:
+        TypeError: Raised if user trying to get item by index from a non-list obj
+
+    Returns:
+        Tuple[bool, Dict, str]: is success, last object, last searched path
+    """
     partial_obj = obj
     path_list = path.split(".")
     searched_path = []
@@ -120,4 +137,11 @@ def conditional_edit(yaml_obj: Dict, path: str, value, decide_path: str, conditi
     success, result, _ = search_path(yaml_obj, decide_path)
     if (success and result == condition) or (not success and condition is None):
         yaml_obj = edit(yaml_obj, path, value)
+    return yaml_obj
+
+
+def mapping_edit(yaml_obj: Dict, path: str, value: Dict, key_path: str):
+    success, key, _ = search_path(yaml_obj, key_path)
+    if success and key in value:
+        yaml_obj = edit(yaml_obj, path, value[key])
     return yaml_obj
